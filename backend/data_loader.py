@@ -68,7 +68,7 @@ async def load_alumni_data():
         alumni_records = []
         for idx, row in df_clean.iterrows():
             record = {}
-            for col in df.columns:
+            for col in df_clean.columns:
                 val = row[col]
                 # Handle empty/null values
                 if pd.isna(val) or val == '' or val == 'nan':
