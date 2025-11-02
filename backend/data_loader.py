@@ -62,11 +62,11 @@ async def load_alumni_data():
         df_clean = pd.DataFrame(values_only, columns=correct_headers)
         
         # Clean column names
-        df.columns = df.columns.str.strip()
+        df_clean.columns = df_clean.columns.str.strip()
         
         # Convert to dict and clean data
         alumni_records = []
-        for idx, row in df.iterrows():
+        for idx, row in df_clean.iterrows():
             record = {}
             for col in df.columns:
                 val = row[col]
