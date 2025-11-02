@@ -56,12 +56,10 @@ async def load_alumni_data():
             row_values = df.iloc[idx, 1:len(correct_headers)+1].tolist()
             if len(row_values) < len(correct_headers):
                 row_values.extend([None] * (len(correct_headers) - len(row_values)))
-                elif len(values) > len(headers):
-                    values = values[:len(headers)]
-                data_rows.append(values)
+            values_only.append(row_values)
         
-        # Create DataFrame
-        df = pd.DataFrame(data_rows, columns=headers)
+        # Create DataFrame with proper headers
+        df_clean = pd.DataFrame(values_only, columns=correct_headers)
         
         # Clean column names
         df.columns = df.columns.str.strip()
