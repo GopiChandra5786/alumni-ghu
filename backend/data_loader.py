@@ -15,22 +15,47 @@ db = client[os.environ['DB_NAME']]
 
 async def load_alumni_data():
     try:
-        # Read CSV - the headers are comma-separated in first column
-        with open('/app/backend/alumni_data.csv', 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+        # Read CSV properly using pandas
+        df = pd.read_csv('/app/backend/alumni_data.csv')
         
-        # Parse header from first line
-        header_line = lines[0].strip()
-        headers = [h.strip() for h in header_line.split(',')]
+        # The first column contains all the header names
+        # We need to extract the actual headers from the first column name
+        first_col_name = df.columns[0]
+        headers = [h.strip() for h in first_col_name.split()][:71]  # Take actual header names
         
-        # Parse data
-        data_rows = []
-        for line in lines[1:]:
-            if line.strip():
-                values = [v.strip() for v in line.split(',')]
-                # Pad or trim to match header length
-                if len(values) < len(headers):
-                    values.extend([''] * (len(headers) - len(values)))
+        # The actual column names should be extracted from first column
+        # Let's manually set the correct headers based on the data structure
+        correct_headers = [
+            'alumni_id', 'full_name', 'gender', 'gender_code', 'age', 'state_us', 
+            'major', 'gpa', 'enrollment_year', 'grad_year', 'years_since_grad',
+            'ssc_percent', 'hsc_percent', 'degree_percent', 'degree_type',
+            'employability_test_score', 'mba_specialization', 'mba_percent',
+            'workex', 'workex_years', 'placement_status', 'salary',
+            'communication', 'confidence', 'commitment', 'general_knowledge',
+            'presentation_skills', 'logical_thinking', 'punctuality', 'attitude',
+            'leader', 'data_structures', 'algorithms', 'oop', 'databases',
+            'debugging', 'events_attended', 'mentorship_interest',
+            'donation_last_year', 'donation_next_year', 'events_score',
+            'mentorship_score', 'engagement_score', 'email', 'location_city',
+            'location_country', 'degree_level', 'field_of_study',
+            'current_company', 'current_title', 'industry', 'employment_type',
+            'employment_start_date', 'employment_end_date', 'employment_is_current',
+            'employment_salary_min', 'employment_salary_max', 'mentor_status',
+            'mentoring_session_count', 'mentoring_feedback_score', 'match_score',
+            'consent_type', 'consent_status', 'granted_at', 'channel',
+            'profile_completeness', 'certifications_count', 'created_at',
+            'updated_at', 'school_name'
+        ]
+        
+        # Assign proper headers - the data is in remaining columns
+        data_cols = [col for col in df.columns if col != df.columns[0] or 'Unnamed' in col]
+        
+        # Extract just the values from the non-header columns
+        values_only = []
+        for idx in range(len(df)):
+            row_values = df.iloc[idx, 1:len(correct_headers)+1].tolist()
+            if len(row_values) < len(correct_headers):
+                row_values.extend([None] * (len(correct_headers) - len(row_values)))
                 elif len(values) > len(headers):
                     values = values[:len(headers)]
                 data_rows.append(values)
