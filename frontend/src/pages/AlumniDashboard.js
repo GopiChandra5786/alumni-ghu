@@ -301,24 +301,9 @@ const AlumniDashboard = ({ user, onLogout }) => {
           </Card>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white border-2 border-gray-200 p-1 rounded-xl">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <User className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="events" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <Calendar className="w-4 h-4 mr-2" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Insights
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card className="p-6 bg-white shadow-lg rounded-2xl">
                 <div className="flex items-center justify-between mb-4">
