@@ -232,7 +232,7 @@ const EmployerPortal = ({ user, onLogout }) => {
                     <SelectValue placeholder="Any Experience" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Experience</SelectItem>
+                    <SelectItem value="all">Any Experience</SelectItem>
                     <SelectItem value="0">Entry Level (0-1 years)</SelectItem>
                     <SelectItem value="2">2+ years</SelectItem>
                     <SelectItem value="5">5+ years</SelectItem>
