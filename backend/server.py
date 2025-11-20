@@ -632,7 +632,7 @@ async def search_candidates(
         query["$or"] = [
             {"field_of_study": {"$regex": skills, "$options": "i"}},
             {"major": {"$regex": skills, "$options": "i"}},
-            {"skills": {"$regex": skills, "$options": "i"}}
+            {"skills": {"$elemMatch": {"$regex": skills, "$options": "i"}}}
         ]
     
     if major:
