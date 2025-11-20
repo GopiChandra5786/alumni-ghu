@@ -308,9 +308,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Skills Search Enhancement"
-    - "Filter Options APIs"
-    - "Contact Candidate API"
     - "Registration System on Landing Page"
     - "Event Registration Modal"
     - "Employer Dropdown Filters"
