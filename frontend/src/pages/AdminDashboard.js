@@ -17,7 +17,7 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const COLORS = ['#26a69a', '#00897b', '#4db6ac', '#80cbc4', '#b2dfdb', '#e0f2f1'];
+const COLORS = ['#26a69a', '#00897b', '#4db6ac', '#80cbc4', '#b2dfdb', '#e0f2f1', '#fbbf24'];
 
 const AdminDashboard = ({ user, onLogout }) => {
   const [analytics, setAnalytics] = useState(null);
