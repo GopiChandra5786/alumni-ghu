@@ -55,7 +55,8 @@ const AlumniDashboard = ({ user, onLogout }) => {
         current_title: response.data.current_title || '',
         mentorship_interest: response.data.mentorship_interest || false,
         location_city: response.data.location_city || '',
-        location_country: response.data.location_country || ''
+        location_country: response.data.location_country || '',
+        skills: response.data.skills || []
       });
     } catch (error) {
       toast.error('Failed to load profile');
