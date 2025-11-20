@@ -426,6 +426,7 @@ async def get_analytics_overview():
             active_alumni=active_alumni,
             avg_salary=round(avg_salary, 2),
             top_industries=top_industries,
+            top_majors=top_majors,
             graduation_trends=graduation_trends,
             engagement_stats=engagement_stats,
             mentorship_stats=mentorship_stats,
