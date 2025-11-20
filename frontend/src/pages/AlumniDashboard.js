@@ -283,6 +283,16 @@ const AlumniDashboard = ({ user, onLogout }) => {
                   className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
                 />
               </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Skills (comma-separated)</label>
+                <Input
+                  data-testid="edit-skills-input"
+                  value={editForm.skills?.join(', ') || ''}
+                  onChange={(e) => setEditForm({...editForm, skills: e.target.value.split(',').map(s => s.trim()).filter(Boolean)})}
+                  placeholder="Python, JavaScript, Leadership"
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <Switch
                   data-testid="mentorship-interest-switch"
