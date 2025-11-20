@@ -85,23 +85,15 @@ const AdminDashboard = ({ user, onLogout }) => {
   const sidebarItems = [
     {
       id: 'overview',
-      label: 'Overview',
+      label: 'Analytics Overview',
       icon: BarChart3,
       active: activeTab === 'overview',
       onClick: () => setActiveTab('overview'),
       testId: 'overview-tab'
     },
     {
-      id: 'predictions',
-      label: 'Predictions',
-      icon: TrendingUp,
-      active: activeTab === 'predictions',
-      onClick: () => setActiveTab('predictions'),
-      testId: 'predictions-tab'
-    },
-    {
       id: 'engagement',
-      label: 'Engagement',
+      label: 'Engagement Metrics',
       icon: Activity,
       active: activeTab === 'engagement',
       onClick: () => setActiveTab('engagement'),
