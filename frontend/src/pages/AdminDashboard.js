@@ -391,8 +391,9 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
               </Card>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
+        </div>
       </div>
     </div>
   );
