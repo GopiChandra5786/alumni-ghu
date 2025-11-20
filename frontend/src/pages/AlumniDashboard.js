@@ -381,6 +381,7 @@ const AlumniDashboard = ({ user, onLogout }) => {
                   </div>
                   <Button 
                     data-testid={`register-event-${event.id}-btn`}
+                    onClick={() => handleEventRegister(event)}
                     className="w-full mt-4 bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
                   >
                     Register
