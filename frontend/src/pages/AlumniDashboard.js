@@ -75,13 +75,63 @@ const AlumniDashboard = ({ user, onLogout }) => {
 
   const fetchPrediction = async () => {
     try {
-      const response = await axios.post(`${API}/predictions/analyze`, {
-        alumni_id: user.alumni_id,
-        prediction_type: 'engagement'
-      });
-      setPrediction(response.data);
+      const [engagementRes, donorRes, mentorRes] = await Promise.all([
+        axios.post(`${API}/predictions/analyze`, {
+          alumni_id: user.alumni_id,
+          prediction_type: 'engagement'
+        }),
+        axios.post(`${API}/predictions/analyze`, {
+          alumni_id: user.alumni_id,
+          prediction_type: 'donor'
+        }),
+        axios.post(`${API}/predictions/analyze`, {
+          alumni_id: user.alumni_id,
+          prediction_type: 'mentor'
+        })
+      ]);
+      setPrediction(engagementRes.data);
+      setDonorPrediction(donorRes.data);
+      setMentorPrediction(mentorRes.data);
     } catch (error) {
       console.error('Failed to load prediction');
+    }
+  };
+
+  const handleEventRegister = (event) => {
+    setSelectedEvent(event);
+    setEventForm({
+      full_name: profile?.full_name || '',
+      email: profile?.email || '',
+      phone: '',
+      dietary_preferences: '',
+      comments: ''
+    });
+    setShowEventModal(true);
+  };
+
+  const submitEventRegistration = async () => {
+    if (!eventForm.full_name || !eventForm.email) {
+      toast.error('Please fill in required fields');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/events/register`, {
+        event_id: selectedEvent.id,
+        alumni_id: user.alumni_id,
+        ...eventForm
+      });
+      
+      setShowEventModal(false);
+      setShowSuccess(true);
+      
+      // Refresh profile to update events_attended
+      setTimeout(() => {
+        fetchProfile();
+        setShowSuccess(false);
+      }, 2000);
+    } catch (error) {
+      toast.error('Failed to register for event');
     }
   };
 
