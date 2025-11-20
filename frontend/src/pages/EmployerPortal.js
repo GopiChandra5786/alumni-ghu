@@ -313,7 +313,69 @@ const EmployerPortal = ({ user, onLogout }) => {
             <p className="text-gray-600 text-lg">No candidates found. Try adjusting your search criteria.</p>
           </div>
         )}
+        </div>
       </div>
+
+      {/* Contact Candidate Modal */}
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold gradient-text">
+              Contact Candidate
+            </DialogTitle>
+          </DialogHeader>
+          {selectedCandidate && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-teal-50 rounded-xl border border-teal-200">
+                <h4 className="font-bold text-gray-800 mb-1">{selectedCandidate.full_name}</h4>
+                <p className="text-sm text-gray-600">{selectedCandidate.email}</p>
+                <p className="text-sm text-gray-600">{selectedCandidate.major}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Subject *</label>
+                <Input
+                  data-testid="contact-subject-input"
+                  value={contactForm.subject}
+                  onChange={(e) => setContactForm({...contactForm, subject: e.target.value})}
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Job Title</label>
+                <Input
+                  data-testid="contact-jobtitle-input"
+                  value={contactForm.job_title}
+                  onChange={(e) => setContactForm({...contactForm, job_title: e.target.value})}
+                  placeholder="e.g., Senior Software Engineer"
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Message *</label>
+                <textarea
+                  data-testid="contact-message-input"
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                  rows={8}
+                  className="w-full border-2 border-gray-200 focus:border-teal-500 rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              <Button
+                data-testid="contact-submit-btn"
+                onClick={submitContactMessage}
+                className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-6 rounded-xl font-semibold"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Send Message
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
