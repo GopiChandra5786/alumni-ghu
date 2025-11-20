@@ -635,8 +635,12 @@ async def search_candidates(
             {"skills": {"$elemMatch": {"$regex": skills, "$options": "i"}}}
         ]
     
-    if major:
-        query["major"] = {"$regex": major, "$options": "i"}
+    if major and major != 'all':
+        if "$or" in query:
+            # If skills filter exists, combine with AND
+            query = {"$and": [{"major": {"$regex": major, "$options": "i"}}, query]}
+        else:
+            query["major"] = {"$regex": major, "$options": "i"}
     
     if experience is not None:
         query["years_since_grad"] = {"$gte": experience}
