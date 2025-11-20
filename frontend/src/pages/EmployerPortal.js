@@ -35,7 +35,21 @@ const EmployerPortal = ({ user, onLogout }) => {
 
   useEffect(() => {
     searchCandidates();
+    fetchFilterOptions();
   }, []);
+
+  const fetchFilterOptions = async () => {
+    try {
+      const [majorsRes, skillsRes] = await Promise.all([
+        axios.get(`${API}/filters/majors`),
+        axios.get(`${API}/filters/skills`)
+      ]);
+      setMajors(majorsRes.data);
+      setSkills(skillsRes.data);
+    } catch (error) {
+      console.error('Failed to load filter options');
+    }
+  };
 
   const searchCandidates = async () => {
     setLoading(true);
