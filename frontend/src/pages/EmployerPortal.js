@@ -16,7 +16,22 @@ const EmployerPortal = ({ user, onLogout }) => {
   const [candidates, setCandidates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMajor, setFilterMajor] = useState('');
+  const [filterSkill, setFilterSkill] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('search');
+  
+  // Filter options
+  const [majors, setMajors] = useState([]);
+  const [skills, setSkills] = useState([]);
+  
+  // Contact Modal
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [contactForm, setContactForm] = useState({
+    subject: '',
+    job_title: '',
+    message: ''
+  });
 
   useEffect(() => {
     searchCandidates();
