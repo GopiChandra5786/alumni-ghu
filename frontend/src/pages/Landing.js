@@ -251,8 +251,20 @@ const Landing = ({ onLogin, user }) => {
                 className="border-2 border-gray-200 focus:border-teal-500 rounded-xl py-3"
               />
               {role === 'alumni' && (
+                <div className="mt-3 p-3 bg-teal-50 rounded-lg border border-teal-200">
+                  <p className="text-xs font-semibold text-teal-800 mb-1">📧 Use your college email ID</p>
+                  <p className="text-xs text-teal-700">Format: student_XXXX@alumni.example.org</p>
+                  <p className="text-xs text-teal-600 mt-1">Example: student_1178@alumni.example.org</p>
+                </div>
+              )}
+              {role === 'admin' && (
                 <p className="text-xs text-gray-500 mt-2">
-                  Example: student_1178@alumni.example.org
+                  Use any email to login as admin
+                </p>
+              )}
+              {role === 'employer' && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Use any email to login as employer
                 </p>
               )}
             </div>
