@@ -270,31 +270,31 @@ const EmployerPortal = ({ user, onLogout }) => {
             </div>
 
             {/* Active Filters Display */}
-            {(filterMajor || filterIndustry || filterMinGpa || filterExperience || searchKeyword) && (
+            {((filterMajor && filterMajor !== 'all') || (filterIndustry && filterIndustry !== 'all') || (filterMinGpa && filterMinGpa !== 'all') || (filterExperience && filterExperience !== 'all') || searchKeyword) && (
               <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-200">
                 <span className="text-sm font-semibold text-gray-600">Active Filters:</span>
                 {filterMajor && filterMajor !== 'all' && (
                   <span className="px-4 py-2 bg-teal-100 text-teal-700 rounded-full text-sm flex items-center gap-2 font-medium">
                     {filterMajor}
-                    <button onClick={() => setFilterMajor('')} className="hover:text-teal-900 font-bold">×</button>
+                    <button onClick={() => setFilterMajor('all')} className="hover:text-teal-900 font-bold">×</button>
                   </span>
                 )}
                 {filterIndustry && filterIndustry !== 'all' && (
                   <span className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm flex items-center gap-2 font-medium">
                     {filterIndustry}
-                    <button onClick={() => setFilterIndustry('')} className="hover:text-emerald-900 font-bold">×</button>
+                    <button onClick={() => setFilterIndustry('all')} className="hover:text-emerald-900 font-bold">×</button>
                   </span>
                 )}
-                {filterMinGpa && (
+                {filterMinGpa && filterMinGpa !== 'all' && (
                   <span className="px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm flex items-center gap-2 font-medium">
                     GPA ≥ {filterMinGpa}
-                    <button onClick={() => setFilterMinGpa('')} className="hover:text-amber-900 font-bold">×</button>
+                    <button onClick={() => setFilterMinGpa('all')} className="hover:text-amber-900 font-bold">×</button>
                   </span>
                 )}
-                {filterExperience && (
+                {filterExperience && filterExperience !== 'all' && (
                   <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2 font-medium">
                     {filterExperience}+ years exp
-                    <button onClick={() => setFilterExperience('')} className="hover:text-blue-900 font-bold">×</button>
+                    <button onClick={() => setFilterExperience('all')} className="hover:text-blue-900 font-bold">×</button>
                   </span>
                 )}
                 {searchKeyword && (
