@@ -389,10 +389,73 @@ const AlumniDashboard = ({ user, onLogout }) => {
                 </Card>
               ))}
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Insights Tab */}
-          <TabsContent value="insights" className="space-y-6">
+        {/* Predictions Tab */}
+        {activeTab === 'predictions' && (
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">Your Predictions</h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Donor Prediction */}
+              {donorPrediction && (
+                <Card className="p-8 bg-gradient-to-br from-rose-50 to-pink-50 shadow-lg rounded-2xl border-2 border-rose-200">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-rose-500 rounded-full flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800">Donor Likelihood</h3>
+                  </div>
+                  <div className="text-6xl font-bold text-rose-600 mb-4">
+                    {donorPrediction.score.toFixed(0)}%
+                  </div>
+                  <p className="text-gray-700 mb-6">
+                    <strong className="text-rose-700">Recommendation:</strong> {donorPrediction.recommendation}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(donorPrediction.factors).map(([key, value]) => (
+                      <div key={key} className="bg-white p-3 rounded-xl">
+                        <p className="text-xs text-gray-600 mb-1 capitalize">{key.replace(/_/g, ' ')}</p>
+                        <p className="text-xl font-bold text-rose-600">{typeof value === 'number' ? value.toFixed(1) : value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+
+              {/* Mentor Match Prediction */}
+              {mentorPrediction && (
+                <Card className="p-8 bg-gradient-to-br from-teal-50 to-emerald-50 shadow-lg rounded-2xl border-2 border-teal-200">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800">Mentor Match Score</h3>
+                  </div>
+                  <div className="text-6xl font-bold text-teal-600 mb-4">
+                    {mentorPrediction.score.toFixed(0)}%
+                  </div>
+                  <p className="text-gray-700 mb-6">
+                    <strong className="text-teal-700">Recommendation:</strong> {mentorPrediction.recommendation}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(mentorPrediction.factors).map(([key, value]) => (
+                      <div key={key} className="bg-white p-3 rounded-xl">
+                        <p className="text-xs text-gray-600 mb-1 capitalize">{key.replace(/_/g, ' ')}</p>
+                        <p className="text-xl font-bold text-teal-600">{typeof value === 'number' ? value.toFixed(1) : value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Insights Tab */}
+        {activeTab === 'insights' && (
+          <div className="space-y-6">
             {prediction && (
               <Card className="p-8 bg-gradient-to-r from-teal-50 to-emerald-50 shadow-lg rounded-2xl border-2 border-teal-200">
                 <h3 className="text-2xl font-bold mb-4 text-gray-800">Your Engagement Insight</h3>
