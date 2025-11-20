@@ -371,6 +371,15 @@ async def get_analytics_overview():
         industries = await db.alumni.aggregate(industry_pipeline).to_list(10)
         top_industries = [{"name": i["_id"], "count": i["count"]} for i in industries]
         
+        # Add major distribution
+        major_pipeline = [
+            {"$match": {"major": {"$ne": None, "$ne": ""}}},
+            {"$group": {"_id": "$major", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}}
+        ]
+        majors = await db.alumni.aggregate(major_pipeline).to_list(10)
+        top_majors = [{"name": m["_id"], "count": m["count"]} for m in majors]
+        
         grad_pipeline = [
             {"$match": {"grad_year": {"$ne": None}}},
             {"$group": {"_id": "$grad_year", "count": {"$sum": 1}}},
