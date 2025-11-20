@@ -312,10 +312,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </div>
               </Card>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Engagement Tab */}
-          <TabsContent value="engagement" className="space-y-6">
+        {/* Engagement Tab */}
+        {activeTab === 'engagement' && (
+          <div className="space-y-6">
             <div className="grid lg:grid-cols-3 gap-6">
               <Card className="p-6 bg-white shadow-lg rounded-2xl">
                 <h3 className="text-lg font-bold mb-4 text-gray-800">Engagement Stats</h3>
