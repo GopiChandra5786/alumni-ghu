@@ -75,10 +75,10 @@ const EmployerPortal = ({ user, onLogout }) => {
   };
 
   const clearFilters = () => {
-    setFilterMajor('');
-    setFilterIndustry('');
-    setFilterMinGpa('');
-    setFilterExperience('');
+    setFilterMajor('all');
+    setFilterIndustry('all');
+    setFilterMinGpa('all');
+    setFilterExperience('all');
     setSearchKeyword('');
     searchCandidates();
   };
