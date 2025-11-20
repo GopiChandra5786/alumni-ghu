@@ -13,9 +13,18 @@ const API = `${BACKEND_URL}/api`;
 
 const Landing = ({ onLogin, user }) => {
   const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('alumni');
   const [loading, setLoading] = useState(false);
+  
+  // Registration fields
+  const [fullName, setFullName] = useState('');
+  const [password, setPassword] = useState('');
+  const [major, setMajor] = useState('');
+  const [gradYear, setGradYear] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -39,6 +48,50 @@ const Landing = ({ onLogin, user }) => {
       else if (role === 'employer') navigate('/employer');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!fullName || !email || !password) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (role === 'alumni' && (!major || !gradYear)) {
+      toast.error('Please fill in major and graduation year');
+      return;
+    }
+
+    if (role === 'employer' && !companyName) {
+      toast.error('Please enter company name');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const registrationData = {
+        full_name: fullName,
+        email,
+        password,
+        role,
+        ...(role === 'alumni' && { major, grad_year: parseInt(gradYear) }),
+        ...(role === 'employer' && { company_name: companyName })
+      };
+
+      await axios.post(`${API}/auth/register`, registrationData);
+      toast.success('Registration successful! Please login.');
+      
+      // Switch to login mode
+      setAuthMode('login');
+      setPassword('');
+      setFullName('');
+      setMajor('');
+      setGradYear('');
+      setCompanyName('');
+    } catch (error) {
+      toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
       setLoading(false);
     }
