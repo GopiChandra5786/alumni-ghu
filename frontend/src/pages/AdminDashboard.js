@@ -171,25 +171,9 @@ const AdminDashboard = ({ user, onLogout }) => {
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white border-2 border-gray-200 p-1 rounded-xl">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="predictions" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Predictions
-            </TabsTrigger>
-            <TabsTrigger value="engagement" className="rounded-lg data-[state=active]:bg-teal-500 data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
-              Engagement
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
             {/* Top Industries */}
             <Card className="p-6 bg-white shadow-lg rounded-2xl">
               <h3 className="text-xl font-bold mb-6 text-gray-800 flex items-center">
