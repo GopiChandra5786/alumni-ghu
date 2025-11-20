@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
@@ -27,14 +27,42 @@ api_router = APIRouter(prefix="/api")
 
 # ==================== MODELS ====================
 
+class RegisterRequest(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: str
+    role: str
+    major: Optional[str] = None
+    grad_year: Optional[int] = None
+    company_name: Optional[str] = None
+
 class LoginRequest(BaseModel):
     email: str
-    role: str  # 'alumni', 'admin', 'employer'
+    role: str
 
 class LoginResponse(BaseModel):
     token: str
     role: str
     user: Dict[str, Any]
+
+class EventRegistration(BaseModel):
+    event_id: int
+    alumni_id: int
+    full_name: str
+    email: str
+    phone: Optional[str] = None
+    dietary_preferences: Optional[str] = None
+    comments: Optional[str] = None
+
+class ContactMessage(BaseModel):
+    employer_email: str
+    employer_name: str
+    company_name: str
+    candidate_id: int
+    candidate_email: str
+    subject: str
+    message: str
+    job_title: Optional[str] = None
 
 class AlumniProfile(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -54,6 +82,7 @@ class AlumniProfile(BaseModel):
     events_attended: Optional[int] = None
     engagement_score: Optional[float] = None
     profile_completeness: Optional[float] = None
+    skills: Optional[List[str]] = None
 
 class AlumniUpdate(BaseModel):
     current_company: Optional[str] = None
@@ -61,6 +90,7 @@ class AlumniUpdate(BaseModel):
     mentorship_interest: Optional[bool] = None
     location_city: Optional[str] = None
     location_country: Optional[str] = None
+    skills: Optional[List[str]] = None
 
 class AnalyticsResponse(BaseModel):
     total_alumni: int
@@ -74,7 +104,7 @@ class AnalyticsResponse(BaseModel):
 
 class PredictionRequest(BaseModel):
     alumni_id: int
-    prediction_type: str  # 'donor', 'mentor', 'engagement'
+    prediction_type: str
 
 class PredictionResponse(BaseModel):
     alumni_id: int
@@ -85,15 +115,78 @@ class PredictionResponse(BaseModel):
 
 # ==================== AUTH ENDPOINTS ====================
 
+@api_router.post("/auth/register")
+async def register_user(request: RegisterRequest):
+    """Register a new user"""
+    try:
+        # Check if email already exists
+        if request.role == 'alumni':
+            existing = await db.alumni.find_one({"email": request.email})
+            if existing:
+                raise HTTPException(status_code=400, detail="Email already registered")
+            
+            # Generate new alumni_id
+            last_alumni = await db.alumni.find_one(sort=[("alumni_id", -1)])
+            new_id = (last_alumni["alumni_id"] + 1) if last_alumni else 20001
+            
+            # Create new alumni record
+            new_alumni = {
+                "alumni_id": new_id,
+                "full_name": request.full_name,
+                "email": request.email,
+                "major": request.major,
+                "grad_year": request.grad_year,
+                "engagement_score": 10.0,
+                "profile_completeness": 40.0,
+                "events_attended": 0,
+                "mentorship_interest": False,
+                "skills": [],
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.alumni.insert_one(new_alumni)
+            
+            return {
+                "message": "Registration successful",
+                "alumni_id": new_id,
+                "email": request.email
+            }
+        
+        elif request.role == 'employer':
+            # Create employer record
+            employer_id = f"emp_{uuid.uuid4().hex[:8]}"
+            new_employer = {
+                "employer_id": employer_id,
+                "full_name": request.full_name,
+                "email": request.email,
+                "company_name": request.company_name,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.employers.insert_one(new_employer)
+            
+            return {
+                "message": "Registration successful",
+                "employer_id": employer_id,
+                "email": request.email
+            }
+        
+        else:
+            raise HTTPException(status_code=400, detail="Invalid role")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/auth/login", response_model=LoginResponse)
 async def login(request: LoginRequest):
     """Mock authentication - simple role-based login"""
     try:
         if request.role == 'alumni':
-            # Find alumni by email
             alumni = await db.alumni.find_one({"email": request.email}, {"_id": 0})
             if not alumni:
-                raise HTTPException(status_code=404, detail="Alumni not found")
+                raise HTTPException(status_code=404, detail="Alumni not found. Please register first.")
             user_data = {
                 "alumni_id": alumni.get("alumni_id"),
                 "full_name": alumni.get("full_name"),
@@ -108,16 +201,25 @@ async def login(request: LoginRequest):
                 "role": "admin"
             }
         elif request.role == 'employer':
-            user_data = {
-                "employer_id": "emp_001",
-                "company_name": "Tech Corp",
-                "email": request.email,
-                "role": "employer"
-            }
+            employer = await db.employers.find_one({"email": request.email}, {"_id": 0})
+            if not employer:
+                user_data = {
+                    "employer_id": "emp_demo",
+                    "company_name": "Demo Company",
+                    "email": request.email,
+                    "role": "employer"
+                }
+            else:
+                user_data = {
+                    "employer_id": employer.get("employer_id"),
+                    "company_name": employer.get("company_name"),
+                    "full_name": employer.get("full_name"),
+                    "email": employer.get("email"),
+                    "role": "employer"
+                }
         else:
             raise HTTPException(status_code=400, detail="Invalid role")
         
-        # Generate mock token
         token = f"mock_token_{uuid.uuid4().hex[:16]}"
         
         return LoginResponse(token=token, role=request.role, user=user_data)
@@ -172,19 +274,87 @@ async def search_alumni(
     alumni = await db.alumni.find(query, {"_id": 0}).limit(limit).to_list(limit)
     return alumni
 
+# ==================== EVENTS ENDPOINTS ====================
+
+@api_router.get("/events/upcoming")
+async def get_upcoming_events():
+    """Get upcoming events"""
+    events = [
+        {
+            "id": 1,
+            "title": "Annual Alumni Gala 2025",
+            "date": "2025-12-15",
+            "location": "GHU Main Campus",
+            "category": "networking",
+            "attendees": 250,
+            "description": "Join us for an elegant evening of networking and celebration"
+        },
+        {
+            "id": 2,
+            "title": "Career Fair & Employer Meetup",
+            "date": "2025-11-20",
+            "location": "Virtual",
+            "category": "career",
+            "attendees": 180,
+            "description": "Connect with top employers and explore career opportunities"
+        },
+        {
+            "id": 3,
+            "title": "Mentorship Program Launch",
+            "date": "2025-11-05",
+            "location": "Online Webinar",
+            "category": "mentorship",
+            "attendees": 120,
+            "description": "Learn about our new mentorship program and how to participate"
+        },
+        {
+            "id": 4,
+            "title": "Tech Industry Panel Discussion",
+            "date": "2025-11-15",
+            "location": "GHU Tech Center",
+            "category": "career",
+            "attendees": 95,
+            "description": "Industry leaders discuss trends and opportunities in tech"
+        }
+    ]
+    return events
+
+@api_router.post("/events/register")
+async def register_for_event(registration: EventRegistration):
+    """Register for an event"""
+    try:
+        # Create registration record
+        registration_data = registration.model_dump()
+        registration_data["registration_id"] = str(uuid.uuid4())
+        registration_data["registered_at"] = datetime.now(timezone.utc).isoformat()
+        registration_data["status"] = "confirmed"
+        
+        # Save registration
+        await db.event_registrations.insert_one(registration_data)
+        
+        # Update alumni events_attended count
+        await db.alumni.update_one(
+            {"alumni_id": registration.alumni_id},
+            {"$inc": {"events_attended": 1}}
+        )
+        
+        return {
+            "message": "Registration successful!",
+            "registration_id": registration_data["registration_id"],
+            "status": "confirmed"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ==================== ANALYTICS ENDPOINTS ====================
 
 @api_router.get("/analytics/overview", response_model=AnalyticsResponse)
 async def get_analytics_overview():
     """Get comprehensive analytics overview"""
     try:
-        # Total alumni count
         total_alumni = await db.alumni.count_documents({})
-        
-        # Active alumni (engagement_score > 50)
         active_alumni = await db.alumni.count_documents({"engagement_score": {"$gt": 50}})
         
-        # Average salary
         salary_pipeline = [
             {"$match": {"salary": {"$ne": None, "$gt": 0}}},
             {"$group": {"_id": None, "avg_salary": {"$avg": "$salary"}}}
@@ -192,7 +362,6 @@ async def get_analytics_overview():
         salary_result = await db.alumni.aggregate(salary_pipeline).to_list(1)
         avg_salary = salary_result[0]["avg_salary"] if salary_result else 0
         
-        # Top industries
         industry_pipeline = [
             {"$match": {"industry": {"$ne": None, "$ne": ""}}},
             {"$group": {"_id": "$industry", "count": {"$sum": 1}}},
@@ -202,7 +371,6 @@ async def get_analytics_overview():
         industries = await db.alumni.aggregate(industry_pipeline).to_list(10)
         top_industries = [{"name": i["_id"], "count": i["count"]} for i in industries]
         
-        # Graduation trends
         grad_pipeline = [
             {"$match": {"grad_year": {"$ne": None}}},
             {"$group": {"_id": "$grad_year", "count": {"$sum": 1}}},
@@ -211,7 +379,6 @@ async def get_analytics_overview():
         grad_data = await db.alumni.aggregate(grad_pipeline).to_list(100)
         graduation_trends = [{"year": g["_id"], "count": g["count"]} for g in grad_data]
         
-        # Engagement stats
         engagement_pipeline = [
             {"$group": {
                 "_id": None,
@@ -223,7 +390,6 @@ async def get_analytics_overview():
         engagement_data = await db.alumni.aggregate(engagement_pipeline).to_list(1)
         engagement_stats = engagement_data[0] if engagement_data else {}
         
-        # Mentorship stats
         mentorship_pipeline = [
             {"$group": {
                 "_id": None,
@@ -235,7 +401,6 @@ async def get_analytics_overview():
         mentorship_data = await db.alumni.aggregate(mentorship_pipeline).to_list(1)
         mentorship_stats = mentorship_data[0] if mentorship_data else {}
         
-        # Donation stats
         donation_pipeline = [
             {"$group": {
                 "_id": None,
@@ -295,6 +460,34 @@ async def get_engagement_metrics():
     result = await db.alumni.aggregate(pipeline).to_list(10)
     return result
 
+# ==================== FILTER OPTIONS ENDPOINTS ====================
+
+@api_router.get("/filters/majors")
+async def get_majors_list():
+    """Get list of all majors for dropdown"""
+    majors = await db.alumni.distinct("major")
+    return sorted([m for m in majors if m])
+
+@api_router.get("/filters/industries")
+async def get_industries_list():
+    """Get list of all industries for dropdown"""
+    industries = await db.alumni.distinct("industry")
+    return sorted([i for i in industries if i])
+
+@api_router.get("/filters/skills")
+async def get_skills_list():
+    """Get list of all skills for dropdown"""
+    # Common skills list
+    skills = [
+        "Python", "JavaScript", "Java", "C++", "React", "Node.js",
+        "Data Analysis", "Machine Learning", "Project Management",
+        "Communication", "Leadership", "Problem Solving",
+        "SQL", "MongoDB", "AWS", "Docker", "Git",
+        "Marketing", "Sales", "Finance", "Accounting",
+        "Design", "UX/UI", "Product Management"
+    ]
+    return sorted(skills)
+
 # ==================== PREDICTION ENDPOINTS ====================
 
 @api_router.post("/predictions/analyze", response_model=PredictionResponse)
@@ -305,29 +498,24 @@ async def analyze_prediction(request: PredictionRequest):
         raise HTTPException(status_code=404, detail="Alumni not found")
     
     if request.prediction_type == 'donor':
-        # Donor likelihood prediction
         score = 0.0
         factors = {}
         
-        # Factor 1: Past donation history (40%)
         if alumni.get("donation_last_year"):
             donation_factor = min(alumni.get("donation_last_year", 0) / 1000, 1.0) * 40
             score += donation_factor
             factors["past_donations"] = donation_factor
         
-        # Factor 2: Engagement score (30%)
         if alumni.get("engagement_score"):
             engagement_factor = (alumni.get("engagement_score", 0) / 100) * 30
             score += engagement_factor
             factors["engagement"] = engagement_factor
         
-        # Factor 3: Salary level (20%)
         if alumni.get("salary"):
             salary_factor = min(alumni.get("salary", 0) / 500000, 1.0) * 20
             score += salary_factor
             factors["income_capacity"] = salary_factor
         
-        # Factor 4: Years since graduation (10%)
         if alumni.get("years_since_grad"):
             years_factor = min(alumni.get("years_since_grad", 0) / 10, 1.0) * 10
             score += years_factor
@@ -343,7 +531,6 @@ async def analyze_prediction(request: PredictionRequest):
             recommendation = "Low priority - focus on engagement first"
         
     elif request.prediction_type == 'mentor':
-        # Mentor match prediction
         score = alumni.get("match_score", 0) * 100 if alumni.get("match_score") else 0
         
         factors = {
@@ -360,7 +547,7 @@ async def analyze_prediction(request: PredictionRequest):
         else:
             recommendation = "Needs more experience or engagement"
     
-    else:  # engagement prediction
+    else:
         score = alumni.get("engagement_score", 0)
         factors = {
             "events_attended": alumni.get("events_attended", 0),
@@ -378,8 +565,8 @@ async def analyze_prediction(request: PredictionRequest):
     )
 
 @api_router.get("/predictions/top-donors")
-async def get_top_donor_predictions(limit: int = 20):
-    """Get top predicted donors"""
+async def get_top_donor_predictions(limit: int = 20, min_score: Optional[float] = None):
+    """Get top predicted donors with optional filtering"""
     pipeline = [
         {"$match": {"donation_next_year": {"$ne": None}}},
         {"$addFields": {
@@ -405,57 +592,27 @@ async def get_top_donor_predictions(limit: int = 20):
             "current_company": 1
         }}
     ]
+    
+    if min_score:
+        pipeline.insert(2, {"$match": {"donor_score": {"$gte": min_score}}})
+    
     result = await db.alumni.aggregate(pipeline).to_list(limit)
     return result
 
 @api_router.get("/predictions/mentor-matches")
-async def get_mentor_matches(limit: int = 20):
-    """Get top mentor match candidates"""
+async def get_mentor_matches(limit: int = 20, min_score: Optional[float] = None):
+    """Get top mentor match candidates with optional filtering"""
+    query = {"match_score": {"$ne": None, "$gt": 0.5}}
+    if min_score:
+        query["match_score"] = {"$gte": min_score / 100}
+    
     alumni = await db.alumni.find(
-        {"match_score": {"$ne": None, "$gt": 0.5}},
+        query,
         {"_id": 0, "alumni_id": 1, "full_name": 1, "email": 1, 
          "match_score": 1, "mentor_status": 1, "current_company": 1,
          "industry": 1, "years_since_grad": 1}
     ).sort("match_score", -1).limit(limit).to_list(limit)
     return alumni
-
-# ==================== EVENTS & MENTORSHIP ====================
-
-@api_router.get("/events/upcoming")
-async def get_upcoming_events():
-    """Get upcoming events (mock data)"""
-    events = [
-        {
-            "id": 1,
-            "title": "Annual Alumni Gala 2025",
-            "date": "2025-12-15",
-            "location": "GHU Main Campus",
-            "category": "networking",
-            "attendees": 250
-        },
-        {
-            "id": 2,
-            "title": "Career Fair & Employer Meetup",
-            "date": "2025-11-20",
-            "location": "Virtual",
-            "category": "career",
-            "attendees": 180
-        },
-        {
-            "id": 3,
-            "title": "Mentorship Program Launch",
-            "date": "2025-11-05",
-            "location": "Online Webinar",
-            "category": "mentorship",
-            "attendees": 120
-        }
-    ]
-    return events
-
-@api_router.post("/mentorship/request")
-async def request_mentorship(alumni_id: int, mentor_id: int):
-    """Request mentorship connection"""
-    return {"message": "Mentorship request sent successfully", "status": "pending"}
 
 # ==================== EMPLOYER ENDPOINTS ====================
 
@@ -464,24 +621,63 @@ async def search_candidates(
     skills: Optional[str] = None,
     major: Optional[str] = None,
     experience: Optional[int] = None,
+    industry: Optional[str] = None,
+    min_gpa: Optional[float] = None,
     limit: int = 30
 ):
-    """Search alumni candidates for hiring"""
+    """Search alumni candidates for hiring with multiple filters"""
     query = {}
+    
+    if skills:
+        query["$or"] = [
+            {"field_of_study": {"$regex": skills, "$options": "i"}},
+            {"major": {"$regex": skills, "$options": "i"}},
+            {"skills": {"$regex": skills, "$options": "i"}}
+        ]
+    
     if major:
         query["major"] = {"$regex": major, "$options": "i"}
-    if skills:
-        query["field_of_study"] = {"$regex": skills, "$options": "i"}
-    if experience:
+    
+    if experience is not None:
         query["years_since_grad"] = {"$gte": experience}
+    
+    if industry:
+        query["industry"] = {"$regex": industry, "$options": "i"}
+    
+    if min_gpa:
+        query["gpa"] = {"$gte": min_gpa}
     
     candidates = await db.alumni.find(
         query,
         {"_id": 0, "alumni_id": 1, "full_name": 1, "email": 1,
          "major": 1, "gpa": 1, "current_company": 1, "current_title": 1,
-         "years_since_grad": 1, "skills": 1}
+         "years_since_grad": 1, "skills": 1, "industry": 1}
     ).limit(limit).to_list(limit)
     return candidates
+
+@api_router.post("/employers/contact-candidate")
+async def contact_candidate(message: ContactMessage):
+    """Send message to candidate"""
+    try:
+        message_data = message.model_dump()
+        message_data["message_id"] = str(uuid.uuid4())
+        message_data["sent_at"] = datetime.now(timezone.utc).isoformat()
+        message_data["status"] = "sent"
+        
+        await db.messages.insert_one(message_data)
+        
+        return {
+            "message": "Message sent successfully!",
+            "message_id": message_data["message_id"],
+            "status": "sent"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/mentorship/request")
+async def request_mentorship(alumni_id: int, mentor_id: int):
+    """Request mentorship connection"""
+    return {"message": "Mentorship request sent successfully", "status": "pending"}
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -494,7 +690,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
