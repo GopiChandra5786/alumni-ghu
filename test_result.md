@@ -199,6 +199,9 @@ backend:
       - working: true
         agent: "main"
         comment: "Prediction endpoints support engagement, donor, and mentor types"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Predictions API working correctly. Tested /api/predictions/analyze with alumni_id=12001 for both prediction_type='donor' (returned score=3.0, recommendation='Low priority - focus on engagement first') and prediction_type='mentor' (returned score=0.0, recommendation='Needs more experience or engagement'). Both return proper score and factors structure."
 
 frontend:
   - task: "Registration System on Landing Page"
