@@ -269,43 +269,17 @@ const Landing = ({ onLogin, user }) => {
             </DialogTitle>
           </DialogHeader>
           
-          {/* Toggle Login/Register */}
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-xl">
-            <button
-              data-testid="login-mode-btn"
-              onClick={() => setAuthMode('login')}
-              className={`flex-1 py-2 rounded-lg font-medium transition-all ${
-                authMode === 'login'
-                  ? 'bg-white text-teal-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              Login
-            </button>
-            <button
-              data-testid="register-mode-btn"
-              onClick={() => setAuthMode('register')}
-              className={`flex-1 py-2 rounded-lg font-medium transition-all ${
-                authMode === 'register'
-                  ? 'bg-white text-teal-700 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
-              }`}
-            >
-              Register
-            </button>
-          </div>
-
-          <div className="space-y-4 py-4">
+          <div className="space-y-6 py-4">
             {/* Role Selection */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Role</label>
-              <div className="grid grid-cols-3 gap-2">
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Select Role</label>
+              <div className="grid grid-cols-3 gap-3">
                 {['alumni', 'admin', 'employer'].map((r) => (
                   <button
                     key={r}
                     data-testid={`role-${r}-btn`}
                     onClick={() => setRole(r)}
-                    className={`py-2 px-3 rounded-xl border-2 font-medium capitalize transition-all text-sm ${
+                    className={`py-3 px-4 rounded-xl border-2 font-medium capitalize transition-all ${
                       role === r
                         ? 'bg-teal-50 border-teal-500 text-teal-700'
                         : 'border-gray-200 text-gray-600 hover:border-teal-200'
@@ -316,90 +290,20 @@ const Landing = ({ onLogin, user }) => {
                 ))}
               </div>
             </div>
-
-            {/* Registration Fields */}
-            {authMode === 'register' && (
-              <>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Full Name *</label>
-                  <Input
-                    data-testid="fullname-input"
-                    type="text"
-                    placeholder="John Doe"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">Password *</label>
-                  <Input
-                    data-testid="password-input"
-                    type="password"
-                    placeholder="Enter password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-                  />
-                </div>
-
-                {role === 'alumni' && (
-                  <>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">Major *</label>
-                      <Input
-                        data-testid="major-input"
-                        type="text"
-                        placeholder="Computer Science"
-                        value={major}
-                        onChange={(e) => setMajor(e.target.value)}
-                        className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-700 mb-2 block">Graduation Year *</label>
-                      <Input
-                        data-testid="gradyear-input"
-                        type="number"
-                        placeholder="2020"
-                        value={gradYear}
-                        onChange={(e) => setGradYear(e.target.value)}
-                        className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-                      />
-                    </div>
-                  </>
-                )}
-
-                {role === 'employer' && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Company Name *</label>
-                    <Input
-                      data-testid="company-input"
-                      type="text"
-                      placeholder="Tech Corp"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-                    />
-                  </div>
-                )}
-              </>
-            )}
             
-            {/* Email Field (for both login and register) */}
+            {/* Email Field */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Email *</label>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Email</label>
               <Input
                 data-testid="email-input"
                 type="email"
                 placeholder="your.email@example.org"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (authMode === 'login' ? handleLogin() : handleRegister())}
-                className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                className="border-2 border-gray-200 focus:border-teal-500 rounded-xl py-3"
               />
-              {authMode === 'login' && role === 'alumni' && (
+              {role === 'alumni' && (
                 <p className="text-xs text-gray-500 mt-2">
                   Example: student_1178@alumni.example.org
                 </p>
@@ -408,12 +312,12 @@ const Landing = ({ onLogin, user }) => {
             
             {/* Submit Button */}
             <Button
-              data-testid={authMode === 'login' ? 'login-submit-btn' : 'register-submit-btn'}
-              onClick={authMode === 'login' ? handleLogin : handleRegister}
+              data-testid="login-submit-btn"
+              onClick={handleLogin}
               disabled={loading}
               className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-6 rounded-xl font-semibold text-lg transition-all"
             >
-              {loading ? (authMode === 'login' ? 'Logging in...' : 'Registering...') : (authMode === 'login' ? 'Continue' : 'Create Account')}
+              {loading ? 'Logging in...' : 'Continue'}
             </Button>
           </div>
         </DialogContent>
