@@ -19,9 +19,24 @@ const AlumniDashboard = ({ user, onLogout }) => {
   const [profile, setProfile] = useState(null);
   const [events, setEvents] = useState([]);
   const [prediction, setPrediction] = useState(null);
+  const [donorPrediction, setDonorPrediction] = useState(null);
+  const [mentorPrediction, setMentorPrediction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
+  const [activeTab, setActiveTab] = useState('overview');
+  
+  // Event Registration Modal State
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventForm, setEventForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    dietary_preferences: '',
+    comments: ''
+  });
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (user.alumni_id) {
