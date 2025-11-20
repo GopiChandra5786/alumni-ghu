@@ -275,12 +275,31 @@ const EmployerPortal = ({ user, onLogout }) => {
                       <p className="font-semibold text-gray-800">{candidate.years_since_grad} years</p>
                     </div>
                   )}
+                  {candidate.skills && candidate.skills.length > 0 && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">Skills</p>
+                      <div className="flex flex-wrap gap-1">
+                        {candidate.skills.slice(0, 3).map((skill, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-teal-50 text-teal-700 text-xs rounded-full">
+                            {skill}
+                          </span>
+                        ))}
+                        {candidate.skills.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                            +{candidate.skills.length - 3}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Button 
                   data-testid={`contact-candidate-${candidate.alumni_id}-btn`}
+                  onClick={() => handleContactCandidate(candidate)}
                   className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
                 >
+                  <Mail className="w-4 h-4 mr-2" />
                   Contact Candidate
                 </Button>
               </Card>
