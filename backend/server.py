@@ -186,7 +186,7 @@ async def login(request: LoginRequest):
         if request.role == 'alumni':
             alumni = await db.alumni.find_one({"email": request.email}, {"_id": 0})
             if not alumni:
-                raise HTTPException(status_code=404, detail="Alumni not found. Please register first.")
+                raise HTTPException(status_code=404, detail="Please login with your college email ID (e.g., student_XXXX@alumni.example.org)")
             user_data = {
                 "alumni_id": alumni.get("alumni_id"),
                 "full_name": alumni.get("full_name"),
