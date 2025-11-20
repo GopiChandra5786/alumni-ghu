@@ -57,6 +57,7 @@ const EmployerPortal = ({ user, onLogout }) => {
       const params = {};
       if (searchTerm) params.skills = searchTerm;
       if (filterMajor) params.major = filterMajor;
+      if (filterSkill) params.skills = filterSkill;
       
       const response = await axios.get(`${API}/employers/search-candidates`, { params });
       setCandidates(response.data);
@@ -64,6 +65,41 @@ const EmployerPortal = ({ user, onLogout }) => {
       toast.error('Failed to search candidates');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleContactCandidate = (candidate) => {
+    setSelectedCandidate(candidate);
+    setContactForm({
+      subject: `Job Opportunity at ${user.company_name || 'Our Company'}`,
+      job_title: '',
+      message: `Dear ${candidate.full_name},\n\nWe came across your profile on the GHU Alumni Network and are impressed with your background in ${candidate.major}.\n\nWe have an exciting opportunity at ${user.company_name || 'our company'} that we believe would be a great fit for your skills and experience.\n\nWould you be interested in learning more about this position?\n\nBest regards,\n${user.full_name || user.email}`
+    });
+    setShowContactModal(true);
+  };
+
+  const submitContactMessage = async () => {
+    if (!contactForm.subject || !contactForm.message) {
+      toast.error('Please fill in subject and message');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/employers/contact-candidate`, {
+        employer_email: user.email,
+        employer_name: user.full_name || user.email,
+        company_name: user.company_name || 'Company',
+        candidate_id: selectedCandidate.alumni_id,
+        candidate_email: selectedCandidate.email,
+        subject: contactForm.subject,
+        message: contactForm.message,
+        job_title: contactForm.job_title
+      });
+      
+      toast.success('Message sent successfully!');
+      setShowContactModal(false);
+    } catch (error) {
+      toast.error('Failed to send message');
     }
   };
 
