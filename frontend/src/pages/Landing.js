@@ -13,18 +13,9 @@ const API = `${BACKEND_URL}/api`;
 
 const Landing = ({ onLogin, user }) => {
   const [showAuth, setShowAuth] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('alumni');
   const [loading, setLoading] = useState(false);
-  
-  // Registration fields
-  const [fullName, setFullName] = useState('');
-  const [password, setPassword] = useState('');
-  const [major, setMajor] = useState('');
-  const [gradYear, setGradYear] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  
   const navigate = useNavigate();
 
   const handleLogin = async () => {
