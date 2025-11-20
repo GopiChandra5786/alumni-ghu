@@ -157,26 +157,53 @@ const AlumniDashboard = ({ user, onLogout }) => {
     );
   }
 
+  const sidebarItems = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: User,
+      active: activeTab === 'overview',
+      onClick: () => setActiveTab('overview'),
+      testId: 'overview-tab'
+    },
+    {
+      id: 'events',
+      label: 'Events',
+      icon: Calendar,
+      active: activeTab === 'events',
+      onClick: () => setActiveTab('events'),
+      testId: 'events-tab',
+      badge: events.length
+    },
+    {
+      id: 'predictions',
+      label: 'Predictions',
+      icon: Target,
+      active: activeTab === 'predictions',
+      onClick: () => setActiveTab('predictions'),
+      testId: 'predictions-tab'
+    },
+    {
+      id: 'insights',
+      label: 'Insights',
+      icon: TrendingUp,
+      active: activeTab === 'insights',
+      onClick: () => setActiveTab('insights'),
+      testId: 'insights-tab'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Alumni Portal</h1>
-            <p className="text-sm text-gray-600">Welcome, {profile?.full_name}</p>
-          </div>
-          <Button 
-            data-testid="alumni-logout-btn"
-            onClick={onLogout}
-            variant="outline"
-            className="border-2 border-red-200 text-red-600 hover:bg-red-50 rounded-xl"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50 flex">
+      {/* Sidebar */}
+      <Sidebar
+        header={{
+          title: 'Alumni Portal',
+          subtitle: profile?.full_name || 'Loading...'
+        }}
+        items={sidebarItems}
+        onLogout={onLogout}
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Profile Overview */}
