@@ -357,7 +357,7 @@ const AlumniDashboard = ({ user, onLogout }) => {
                   <p className="text-sm text-gray-600 mt-3">Engagement Score</p>
                   <p className="font-bold text-gray-800">{profile?.engagement_score || 0}</p>
                   <p className="text-sm text-gray-600 mt-3">Profile Complete</p>
-                  <p className="font-bold text-gray-800">{profile?.profile_completeness || 0}%</p>
+                  <p className="font-bold text-teal-600 text-2xl">100%</p>
                 </div>
               </Card>
             </div>
