@@ -205,7 +205,9 @@ const AlumniDashboard = ({ user, onLogout }) => {
         onLogout={onLogout}
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* Main Content */}
+      <div className="flex-1 ml-64 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Profile Overview */}
         <Card className="p-8 mb-8 bg-gradient-to-r from-teal-500 to-emerald-500 text-white shadow-xl rounded-2xl">
           <div className="flex items-start justify-between">
