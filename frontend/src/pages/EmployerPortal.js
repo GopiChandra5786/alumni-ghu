@@ -103,28 +103,41 @@ const EmployerPortal = ({ user, onLogout }) => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Employer Portal</h1>
-            <p className="text-sm text-gray-600">Welcome, {user.company_name || user.email}</p>
-          </div>
-          <Button 
-            data-testid="employer-logout-btn"
-            onClick={onLogout}
-            variant="outline"
-            className="border-2 border-red-200 text-red-600 hover:bg-red-50 rounded-xl"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </header>
+  const sidebarItems = [
+    {
+      id: 'search',
+      label: 'Search Candidates',
+      icon: Search,
+      active: activeTab === 'search',
+      onClick: () => setActiveTab('search'),
+      testId: 'search-tab',
+      badge: candidates.length
+    },
+    {
+      id: 'filters',
+      label: 'Advanced Filters',
+      icon: Filter,
+      active: activeTab === 'filters',
+      onClick: () => setActiveTab('filters'),
+      testId: 'filters-tab'
+    }
+  ];
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50 flex">
+      {/* Sidebar */}
+      <Sidebar
+        header={{
+          title: 'Employer Portal',
+          subtitle: user.company_name || user.email
+        }}
+        items={sidebarItems}
+        onLogout={onLogout}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 ml-64 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search Section */}
         <Card className="p-6 mb-8 bg-white shadow-lg rounded-2xl">
           <h2 className="text-2xl font-bold mb-6 text-gray-800">Search Candidates</h2>
