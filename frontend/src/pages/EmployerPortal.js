@@ -7,22 +7,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import Sidebar from '../components/Sidebar';
-import { Search, Briefcase, LogOut, Mail, MapPin, Award, Users, Filter } from 'lucide-react';
+import { Search, Briefcase, LogOut, Mail, Award, Building, GraduationCap, MapPin, DollarSign } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const EmployerPortal = ({ user, onLogout }) => {
   const [candidates, setCandidates] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterMajor, setFilterMajor] = useState('');
-  const [filterSkill, setFilterSkill] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('search');
   
+  // Filters
+  const [filterMajor, setFilterMajor] = useState('');
+  const [filterIndustry, setFilterIndustry] = useState('');
+  const [filterMinGpa, setFilterMinGpa] = useState('');
+  const [filterExperience, setFilterExperience] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  
   // Filter options
   const [majors, setMajors] = useState([]);
-  const [skills, setSkills] = useState([]);
+  const [industries, setIndustries] = useState([]);
   
   // Contact Modal
   const [showContactModal, setShowContactModal] = useState(false);
@@ -40,12 +44,12 @@ const EmployerPortal = ({ user, onLogout }) => {
 
   const fetchFilterOptions = async () => {
     try {
-      const [majorsRes, skillsRes] = await Promise.all([
+      const [majorsRes, industriesRes] = await Promise.all([
         axios.get(`${API}/filters/majors`),
-        axios.get(`${API}/filters/skills`)
+        axios.get(`${API}/filters/industries`)
       ]);
       setMajors(majorsRes.data);
-      setSkills(skillsRes.data);
+      setIndustries(industriesRes.data);
     } catch (error) {
       console.error('Failed to load filter options');
     }
@@ -55,9 +59,11 @@ const EmployerPortal = ({ user, onLogout }) => {
     setLoading(true);
     try {
       const params = {};
-      if (searchTerm) params.skills = searchTerm;
-      if (filterMajor) params.major = filterMajor;
-      if (filterSkill) params.skills = filterSkill;
+      if (filterMajor && filterMajor !== 'all') params.major = filterMajor;
+      if (filterIndustry && filterIndustry !== 'all') params.industry = filterIndustry;
+      if (filterMinGpa) params.min_gpa = parseFloat(filterMinGpa);
+      if (filterExperience) params.experience = parseInt(filterExperience);
+      if (searchKeyword) params.skills = searchKeyword;
       
       const response = await axios.get(`${API}/employers/search-candidates`, { params });
       setCandidates(response.data);
@@ -66,6 +72,15 @@ const EmployerPortal = ({ user, onLogout }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearFilters = () => {
+    setFilterMajor('');
+    setFilterIndustry('');
+    setFilterMinGpa('');
+    setFilterExperience('');
+    setSearchKeyword('');
+    searchCandidates();
   };
 
   const handleContactCandidate = (candidate) => {
@@ -111,15 +126,7 @@ const EmployerPortal = ({ user, onLogout }) => {
       active: activeTab === 'search',
       onClick: () => setActiveTab('search'),
       testId: 'search-tab',
-      badge: candidates.length
-    },
-    {
-      id: 'filters',
-      label: 'Advanced Filters',
-      icon: Filter,
-      active: activeTab === 'filters',
-      onClick: () => setActiveTab('filters'),
-      testId: 'filters-tab'
+      badge: candidates.length > 0 ? candidates.length : null
     }
   ];
 
@@ -138,181 +145,277 @@ const EmployerPortal = ({ user, onLogout }) => {
       {/* Main Content */}
       <div className="flex-1 ml-64 overflow-y-auto">
         <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Search Section */}
-        <Card className="p-6 mb-8 bg-white shadow-lg rounded-2xl">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
-            <Search className="w-7 h-7 text-teal-600" />
-            Search Candidates
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Major</label>
-              <Select value={filterMajor} onValueChange={setFilterMajor}>
-                <SelectTrigger data-testid="major-filter-select" className="border-2 border-gray-200 focus:border-teal-500 rounded-xl">
-                  <SelectValue placeholder="Select Major" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Majors</SelectItem>
-                  {majors.map((major) => (
-                    <SelectItem key={major} value={major}>{major}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Skills</label>
-              <Select value={filterSkill} onValueChange={setFilterSkill}>
-                <SelectTrigger data-testid="skill-filter-select" className="border-2 border-gray-200 focus:border-teal-500 rounded-xl">
-                  <SelectValue placeholder="Select Skill" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Skills</SelectItem>
-                  {skills.map((skill) => (
-                    <SelectItem key={skill} value={skill}>{skill}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">Keyword Search</label>
-              <Input
-                data-testid="search-skills-input"
-                placeholder="Search keywords..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-              />
-            </div>
-
-            <div className="flex items-end">
+          {/* Search & Filters Section */}
+          <Card className="p-8 mb-8 bg-white shadow-xl rounded-2xl border-2 border-teal-100">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <Search className="w-8 h-8 text-teal-600" />
+                Find Alumni Candidates
+              </h2>
               <Button
-                data-testid="search-btn"
-                onClick={searchCandidates}
-                className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-semibold"
+                onClick={clearFilters}
+                variant="outline"
+                className="border-2 border-gray-300 hover:bg-gray-50"
               >
-                <Search className="w-4 h-4 mr-2" />
-                Search
+                Clear All Filters
               </Button>
             </div>
-          </div>
 
-          {(filterMajor || filterSkill || searchTerm) && (
-            <div className="mt-4 flex items-center gap-2">
-              <span className="text-sm text-gray-600">Active Filters:</span>
-              {filterMajor && (
-                <span className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm flex items-center gap-2">
-                  {filterMajor}
-                  <button onClick={() => setFilterMajor('')} className="hover:text-teal-900">×</button>
-                </span>
-              )}
-              {filterSkill && (
-                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm flex items-center gap-2">
-                  {filterSkill}
-                  <button onClick={() => setFilterSkill('')} className="hover:text-emerald-900">×</button>
-                </span>
-              )}
-              {searchTerm && (
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2">
-                  {searchTerm}
-                  <button onClick={() => setSearchTerm('')} className="hover:text-blue-900">×</button>
-                </span>
-              )}
+            {/* Filter Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {/* Major Filter */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-teal-600" />
+                  Major / Field of Study
+                </label>
+                <Select value={filterMajor} onValueChange={setFilterMajor}>
+                  <SelectTrigger data-testid="major-filter-select" className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
+                    <SelectValue placeholder="All Majors" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Majors</SelectItem>
+                    {majors.map((major) => (
+                      <SelectItem key={major} value={major}>{major}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Industry Filter */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center gap-2">
+                  <Building className="w-4 h-4 text-emerald-600" />
+                  Current Industry
+                </label>
+                <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+                  <SelectTrigger data-testid="industry-filter-select" className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
+                    <SelectValue placeholder="All Industries" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Industries</SelectItem>
+                    {industries.map((industry) => (
+                      <SelectItem key={industry} value={industry}>{industry}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Min GPA Filter */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center gap-2">
+                  <Award className="w-4 h-4 text-amber-600" />
+                  Minimum GPA
+                </label>
+                <Select value={filterMinGpa} onValueChange={setFilterMinGpa}>
+                  <SelectTrigger data-testid="gpa-filter-select" className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
+                    <SelectValue placeholder="Any GPA" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Any GPA</SelectItem>
+                    <SelectItem value="3.5">3.5 and above</SelectItem>
+                    <SelectItem value="3.0">3.0 and above</SelectItem>
+                    <SelectItem value="2.5">2.5 and above</SelectItem>
+                    <SelectItem value="2.0">2.0 and above</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Experience Filter */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                  Years of Experience
+                </label>
+                <Select value={filterExperience} onValueChange={setFilterExperience}>
+                  <SelectTrigger data-testid="experience-filter-select" className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
+                    <SelectValue placeholder="Any Experience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Any Experience</SelectItem>
+                    <SelectItem value="0">Entry Level (0-1 years)</SelectItem>
+                    <SelectItem value="2">2+ years</SelectItem>
+                    <SelectItem value="5">5+ years</SelectItem>
+                    <SelectItem value="10">10+ years</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Keyword Search */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block flex items-center gap-2">
+                  <Search className="w-4 h-4 text-purple-600" />
+                  Keyword Search
+                </label>
+                <Input
+                  data-testid="search-keyword-input"
+                  placeholder="Company, title, field..."
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12"
+                />
+              </div>
+
+              {/* Search Button */}
+              <div className="flex items-end">
+                <Button
+                  data-testid="search-btn"
+                  onClick={searchCandidates}
+                  className="w-full h-12 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-semibold text-lg shadow-lg"
+                >
+                  <Search className="w-5 h-5 mr-2" />
+                  Search
+                </Button>
+              </div>
             </div>
-          )}
-        </Card>
 
-        {/* Candidates Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Searching candidates...</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {candidates.map((candidate) => (
-              <Card 
-                key={candidate.alumni_id} 
-                data-testid={`candidate-card-${candidate.alumni_id}`}
-                className="p-6 bg-white shadow-lg rounded-2xl hover:shadow-xl transition-all"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-800 mb-1">
-                      {candidate.full_name}
-                    </h3>
-                    <p className="text-sm text-gray-600 flex items-center gap-1">
-                      <Mail className="w-3 h-3" />
-                      {candidate.email}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-full flex items-center justify-center">
-                    <Award className="w-6 h-6 text-white" />
-                  </div>
-                </div>
+            {/* Active Filters Display */}
+            {(filterMajor || filterIndustry || filterMinGpa || filterExperience || searchKeyword) && (
+              <div className="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-200">
+                <span className="text-sm font-semibold text-gray-600">Active Filters:</span>
+                {filterMajor && filterMajor !== 'all' && (
+                  <span className="px-4 py-2 bg-teal-100 text-teal-700 rounded-full text-sm flex items-center gap-2 font-medium">
+                    {filterMajor}
+                    <button onClick={() => setFilterMajor('')} className="hover:text-teal-900 font-bold">×</button>
+                  </span>
+                )}
+                {filterIndustry && filterIndustry !== 'all' && (
+                  <span className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-full text-sm flex items-center gap-2 font-medium">
+                    {filterIndustry}
+                    <button onClick={() => setFilterIndustry('')} className="hover:text-emerald-900 font-bold">×</button>
+                  </span>
+                )}
+                {filterMinGpa && (
+                  <span className="px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-sm flex items-center gap-2 font-medium">
+                    GPA ≥ {filterMinGpa}
+                    <button onClick={() => setFilterMinGpa('')} className="hover:text-amber-900 font-bold">×</button>
+                  </span>
+                )}
+                {filterExperience && (
+                  <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2 font-medium">
+                    {filterExperience}+ years exp
+                    <button onClick={() => setFilterExperience('')} className="hover:text-blue-900 font-bold">×</button>
+                  </span>
+                )}
+                {searchKeyword && (
+                  <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm flex items-center gap-2 font-medium">
+                    "{searchKeyword}"
+                    <button onClick={() => setSearchKeyword('')} className="hover:text-purple-900 font-bold">×</button>
+                  </span>
+                )}
+              </div>
+            )}
+          </Card>
 
-                <div className="space-y-3 mb-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Major</p>
-                    <p className="font-semibold text-gray-800">{candidate.major}</p>
-                  </div>
-                  {candidate.gpa && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">GPA</p>
-                      <p className="font-semibold text-gray-800">{candidate.gpa}</p>
-                    </div>
-                  )}
-                  {candidate.current_company && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Current Company</p>
-                      <p className="font-semibold text-gray-800">{candidate.current_company}</p>
-                    </div>
-                  )}
-                  {candidate.years_since_grad && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Experience</p>
-                      <p className="font-semibold text-gray-800">{candidate.years_since_grad} years</p>
-                    </div>
-                  )}
-                  {candidate.skills && candidate.skills.length > 0 && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-2">Skills</p>
-                      <div className="flex flex-wrap gap-1">
-                        {candidate.skills.slice(0, 3).map((skill, idx) => (
-                          <span key={idx} className="px-2 py-1 bg-teal-50 text-teal-700 text-xs rounded-full">
-                            {skill}
-                          </span>
-                        ))}
-                        {candidate.skills.length > 3 && (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                            +{candidate.skills.length - 3}
-                          </span>
-                        )}
+          {/* Results Section */}
+          {loading ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+              <p className="text-gray-600 text-lg font-medium">Searching candidates...</p>
+            </div>
+          ) : candidates.length > 0 ? (
+            <>
+              <div className="mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">
+                  Found {candidates.length} {candidates.length === 1 ? 'Candidate' : 'Candidates'}
+                </h3>
+                <p className="text-gray-600 mt-1">Click on a candidate to view details and send a message</p>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {candidates.map((candidate) => (
+                  <Card 
+                    key={candidate.alumni_id} 
+                    data-testid={`candidate-card-${candidate.alumni_id}`}
+                    className="p-6 bg-white shadow-lg rounded-2xl hover:shadow-2xl transition-all border-2 border-transparent hover:border-teal-200"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-xl text-gray-800 mb-2">
+                          {candidate.full_name}
+                        </h3>
+                        <p className="text-sm text-gray-600 flex items-center gap-2 mb-1">
+                          <Mail className="w-4 h-4 text-teal-600" />
+                          {candidate.email}
+                        </p>
+                      </div>
+                      <div className="w-14 h-14 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-full flex items-center justify-center shadow-lg">
+                        <Award className="w-7 h-7 text-white" />
                       </div>
                     </div>
-                  )}
-                </div>
 
-                <Button 
-                  data-testid={`contact-candidate-${candidate.alumni_id}-btn`}
-                  onClick={() => handleContactCandidate(candidate)}
-                  className="w-full bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Contact Candidate
-                </Button>
-              </Card>
-            ))}
-          </div>
-        )}
+                    <div className="space-y-3 mb-5">
+                      <div className="flex items-center justify-between p-3 bg-teal-50 rounded-xl">
+                        <span className="text-xs text-gray-600 font-medium">Major</span>
+                        <span className="font-semibold text-gray-800 text-sm">{candidate.major}</span>
+                      </div>
+                      
+                      {candidate.gpa && (
+                        <div className="flex items-center justify-between p-3 bg-amber-50 rounded-xl">
+                          <span className="text-xs text-gray-600 font-medium">GPA</span>
+                          <span className="font-semibold text-gray-800 text-sm">{candidate.gpa}</span>
+                        </div>
+                      )}
+                      
+                      {candidate.grad_year && (
+                        <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl">
+                          <span className="text-xs text-gray-600 font-medium">Graduated</span>
+                          <span className="font-semibold text-gray-800 text-sm">{candidate.grad_year}</span>
+                        </div>
+                      )}
+                      
+                      {candidate.current_company && (
+                        <div className="p-3 bg-emerald-50 rounded-xl">
+                          <p className="text-xs text-gray-600 mb-1 font-medium">Current Company</p>
+                          <p className="font-semibold text-gray-800 text-sm">{candidate.current_company}</p>
+                          {candidate.current_title && (
+                            <p className="text-xs text-gray-600 mt-1">{candidate.current_title}</p>
+                          )}
+                        </div>
+                      )}
+                      
+                      {candidate.industry && (
+                        <div className="flex items-center justify-between p-3 bg-purple-50 rounded-xl">
+                          <span className="text-xs text-gray-600 font-medium">Industry</span>
+                          <span className="font-semibold text-gray-800 text-sm">{candidate.industry}</span>
+                        </div>
+                      )}
+                      
+                      {candidate.years_since_grad !== undefined && (
+                        <div className="flex items-center justify-between p-3 bg-pink-50 rounded-xl">
+                          <span className="text-xs text-gray-600 font-medium">Experience</span>
+                          <span className="font-semibold text-gray-800 text-sm">{candidate.years_since_grad} years</span>
+                        </div>
+                      )}
+                    </div>
 
-        {!loading && candidates.length === 0 && (
-          <div className="text-center py-16">
-            <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg">No candidates found. Try adjusting your search criteria.</p>
-          </div>
-        )}
+                    <Button 
+                      data-testid={`contact-candidate-${candidate.alumni_id}-btn`}
+                      onClick={() => handleContactCandidate(candidate)}
+                      className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl h-12 font-semibold shadow-lg"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Contact Candidate
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Briefcase className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">No Candidates Found</h3>
+              <p className="text-gray-600 text-lg mb-6">Try adjusting your search criteria to find more candidates</p>
+              <Button
+                onClick={clearFilters}
+                className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white px-8 py-6 rounded-xl font-semibold text-lg"
+              >
+                Clear All Filters
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -326,10 +429,10 @@ const EmployerPortal = ({ user, onLogout }) => {
           </DialogHeader>
           {selectedCandidate && (
             <div className="space-y-4 py-4">
-              <div className="p-4 bg-teal-50 rounded-xl border border-teal-200">
-                <h4 className="font-bold text-gray-800 mb-1">{selectedCandidate.full_name}</h4>
-                <p className="text-sm text-gray-600">{selectedCandidate.email}</p>
-                <p className="text-sm text-gray-600">{selectedCandidate.major}</p>
+              <div className="p-4 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl border-2 border-teal-200">
+                <h4 className="font-bold text-gray-800 text-lg mb-1">{selectedCandidate.full_name}</h4>
+                <p className="text-sm text-gray-600 mb-1">{selectedCandidate.email}</p>
+                <p className="text-sm text-gray-600">{selectedCandidate.major} • Class of {selectedCandidate.grad_year}</p>
               </div>
 
               <div>
