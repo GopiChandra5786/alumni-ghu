@@ -18,10 +18,10 @@ const EmployerPortal = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('search');
   
   // Filters
-  const [filterMajor, setFilterMajor] = useState('');
-  const [filterIndustry, setFilterIndustry] = useState('');
-  const [filterMinGpa, setFilterMinGpa] = useState('');
-  const [filterExperience, setFilterExperience] = useState('');
+  const [filterMajor, setFilterMajor] = useState('all');
+  const [filterIndustry, setFilterIndustry] = useState('all');
+  const [filterMinGpa, setFilterMinGpa] = useState('all');
+  const [filterExperience, setFilterExperience] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   
   // Filter options
