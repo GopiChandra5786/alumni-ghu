@@ -380,69 +380,6 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
         )}
 
-        {/* Predictions Tab */}
-        {activeTab === 'predictions' && (
-          <div className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              {/* Top Donor Predictions */}
-              <Card className="p-6 bg-white shadow-lg rounded-2xl">
-                <h3 className="text-xl font-bold mb-6 text-gray-800 flex items-center">
-                  <Heart className="w-5 h-5 mr-2 text-rose-500" />
-                  Top Donor Predictions
-                </h3>
-                <div className="space-y-3">
-                  {topDonors.map((donor, idx) => (
-                    <div key={idx} className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl border border-rose-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-800">{donor.full_name}</p>
-                          <p className="text-sm text-gray-600">{donor.email}</p>
-                          <p className="text-xs text-gray-500 mt-1">{donor.current_company}</p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-rose-600">
-                            {Math.round(donor.donor_score)}
-                          </div>
-                          <div className="text-xs text-gray-500">Score</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Mentor Match Predictions */}
-              <Card className="p-6 bg-white shadow-lg rounded-2xl">
-                <h3 className="text-xl font-bold mb-6 text-gray-800 flex items-center">
-                  <UserCheck className="w-5 h-5 mr-2 text-teal-600" />
-                  Top Mentor Matches
-                </h3>
-                <div className="space-y-3">
-                  {mentorMatches.map((mentor, idx) => (
-                    <div key={idx} className="p-4 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-xl border border-teal-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-800">{mentor.full_name}</p>
-                          <p className="text-sm text-gray-600">{mentor.industry}</p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {mentor.years_since_grad} years experience
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-teal-600">
-                            {(mentor.match_score * 100).toFixed(0)}%
-                          </div>
-                          <div className="text-xs text-gray-500">Match</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          </div>
-        )}
-
         {/* Engagement Tab */}
         {activeTab === 'engagement' && (
           <div className="space-y-6">
