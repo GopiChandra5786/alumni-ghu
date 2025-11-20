@@ -173,11 +173,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Contact candidate endpoint stores messages in MongoDB messages collection"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Contact candidate API working correctly. Successfully tested /api/employers/contact-candidate with all required fields (employer_email, employer_name, company_name, candidate_id, candidate_email, subject, message, job_title). Returns proper message_id and status='sent'."
 
   - task: "Predictions API (Donor/Mentor)"
     implemented: true
