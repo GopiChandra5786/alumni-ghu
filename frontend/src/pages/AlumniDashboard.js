@@ -480,9 +480,106 @@ const AlumniDashboard = ({ user, onLogout }) => {
                 </div>
               </Card>
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
+        </div>
       </div>
+
+      {/* Event Registration Modal */}
+      <Dialog open={showEventModal} onOpenChange={setShowEventModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold gradient-text">
+              Register for Event
+            </DialogTitle>
+          </DialogHeader>
+          {selectedEvent && (
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-teal-50 rounded-xl border border-teal-200">
+                <h4 className="font-bold text-gray-800 mb-1">{selectedEvent.title}</h4>
+                <p className="text-sm text-gray-600">{selectedEvent.date} • {selectedEvent.location}</p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Full Name *</label>
+                <Input
+                  data-testid="event-fullname-input"
+                  value={eventForm.full_name}
+                  onChange={(e) => setEventForm({...eventForm, full_name: e.target.value})}
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Email *</label>
+                <Input
+                  data-testid="event-email-input"
+                  type="email"
+                  value={eventForm.email}
+                  onChange={(e) => setEventForm({...eventForm, email: e.target.value})}
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Phone</label>
+                <Input
+                  data-testid="event-phone-input"
+                  type="tel"
+                  value={eventForm.phone}
+                  onChange={(e) => setEventForm({...eventForm, phone: e.target.value})}
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Dietary Preferences</label>
+                <Input
+                  data-testid="event-dietary-input"
+                  value={eventForm.dietary_preferences}
+                  onChange={(e) => setEventForm({...eventForm, dietary_preferences: e.target.value})}
+                  placeholder="Vegetarian, Vegan, etc."
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Comments</label>
+                <Input
+                  data-testid="event-comments-input"
+                  value={eventForm.comments}
+                  onChange={(e) => setEventForm({...eventForm, comments: e.target.value})}
+                  placeholder="Any special requests..."
+                  className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+                />
+              </div>
+
+              <Button
+                data-testid="event-submit-btn"
+                onClick={submitEventRegistration}
+                className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white py-6 rounded-xl font-semibold"
+              >
+                Complete Registration
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Modal */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="sm:max-w-md">
+          <div className="text-center py-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Registration Successful!</h3>
+            <p className="text-gray-600">You've been successfully registered for the event.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
