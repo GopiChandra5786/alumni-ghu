@@ -24,6 +24,7 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [topDonors, setTopDonors] = useState([]);
   const [mentorMatches, setMentorMatches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchAnalytics();
