@@ -249,10 +249,12 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </ResponsiveContainer>
               </Card>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Predictions Tab */}
-          <TabsContent value="predictions" className="space-y-6">
+        {/* Predictions Tab */}
+        {activeTab === 'predictions' && (
+          <div className="space-y-6">
             <div className="grid lg:grid-cols-2 gap-6">
               {/* Top Donor Predictions */}
               <Card className="p-6 bg-white shadow-lg rounded-2xl">
