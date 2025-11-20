@@ -179,59 +179,21 @@ const AdminDashboard = ({ user, onLogout }) => {
                 </h3>
               </div>
               
-              <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Select Graph Type</label>
-                  <Select value={selectedGraph} onValueChange={setSelectedGraph}>
-                    <SelectTrigger className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
-                      <SelectValue placeholder="Choose Graph" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="industry">Alumni by Industry</SelectItem>
-                      <SelectItem value="major">Alumni by Major</SelectItem>
-                      <SelectItem value="graduation">Graduation Trends</SelectItem>
-                      <SelectItem value="salary">Salary Distribution</SelectItem>
-                      <SelectItem value="gpa">GPA Distribution</SelectItem>
-                      <SelectItem value="employment">Employment Status</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Filter by Major</label>
-                  <Select value={selectedMajor} onValueChange={setSelectedMajor}>
-                    <SelectTrigger className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
-                      <SelectValue placeholder="All Majors" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Majors</SelectItem>
-                      <SelectItem value="Computer Science">Computer Science</SelectItem>
-                      <SelectItem value="Physics">Physics</SelectItem>
-                      <SelectItem value="Mathematics">Mathematics</SelectItem>
-                      <SelectItem value="Biology">Biology</SelectItem>
-                      <SelectItem value="Economics">Economics</SelectItem>
-                      <SelectItem value="History">History</SelectItem>
-                      <SelectItem value="English">English</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold text-gray-700 mb-2 block">Filter by Year</label>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
-                      <SelectValue placeholder="All Years" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Years</SelectItem>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2023">2023</SelectItem>
-                      <SelectItem value="2022">2022</SelectItem>
-                      <SelectItem value="2021">2021</SelectItem>
-                      <SelectItem value="2020">2020</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="max-w-md mb-6">
+                <label className="text-sm font-semibold text-gray-700 mb-3 block">Select Graph Type</label>
+                <Select value={selectedGraph} onValueChange={setSelectedGraph}>
+                  <SelectTrigger className="border-2 border-gray-300 focus:border-teal-500 rounded-xl h-12">
+                    <SelectValue placeholder="Choose Graph" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="industry">Alumni by Industry</SelectItem>
+                    <SelectItem value="major">Alumni by Major</SelectItem>
+                    <SelectItem value="graduation">Graduation Trends</SelectItem>
+                    <SelectItem value="salary">Salary Distribution</SelectItem>
+                    <SelectItem value="gpa">GPA Distribution</SelectItem>
+                    <SelectItem value="employment">Employment Status</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Dynamic Graph Display */}
