@@ -26,6 +26,11 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [mentorMatches, setMentorMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Graph view controls
+  const [selectedGraph, setSelectedGraph] = useState('industry');
+  const [selectedMajor, setSelectedMajor] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('all');
 
   useEffect(() => {
     fetchAnalytics();
