@@ -143,11 +143,14 @@ backend:
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Updated search to handle skills as array with $elemMatch, combined major and skills filters with $and operator"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Skills search API working correctly. Tested /api/employers/search-candidates with skills=Python and combined skills=JavaScript&major=Computer Science filters. Both queries executed successfully with proper response format. Skills array search with $elemMatch functioning as expected."
 
   - task: "Filter Options APIs"
     implemented: true
