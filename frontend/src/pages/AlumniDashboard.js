@@ -4,11 +4,12 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Switch } from '../components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
+import Sidebar from '../components/Sidebar';
 import { 
   User, Briefcase, Calendar, Award, LogOut, 
-  Mail, MapPin, TrendingUp, Heart, Users 
+  Mail, MapPin, TrendingUp, Heart, Users, Target 
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
