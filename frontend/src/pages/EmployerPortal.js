@@ -140,31 +140,87 @@ const EmployerPortal = ({ user, onLogout }) => {
         <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search Section */}
         <Card className="p-6 mb-8 bg-white shadow-lg rounded-2xl">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">Search Candidates</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Input
-              data-testid="search-skills-input"
-              placeholder="Search by skills or field..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-            />
-            <Input
-              data-testid="filter-major-input"
-              placeholder="Filter by major..."
-              value={filterMajor}
-              onChange={(e) => setFilterMajor(e.target.value)}
-              className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
-            />
-            <Button
-              data-testid="search-btn"
-              onClick={searchCandidates}
-              className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-semibold"
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+            <Search className="w-7 h-7 text-teal-600" />
+            Search Candidates
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Major</label>
+              <Select value={filterMajor} onValueChange={setFilterMajor}>
+                <SelectTrigger data-testid="major-filter-select" className="border-2 border-gray-200 focus:border-teal-500 rounded-xl">
+                  <SelectValue placeholder="Select Major" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Majors</SelectItem>
+                  {majors.map((major) => (
+                    <SelectItem key={major} value={major}>{major}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Skills</label>
+              <Select value={filterSkill} onValueChange={setFilterSkill}>
+                <SelectTrigger data-testid="skill-filter-select" className="border-2 border-gray-200 focus:border-teal-500 rounded-xl">
+                  <SelectValue placeholder="Select Skill" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Skills</SelectItem>
+                  {skills.map((skill) => (
+                    <SelectItem key={skill} value={skill}>{skill}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">Keyword Search</label>
+              <Input
+                data-testid="search-skills-input"
+                placeholder="Search keywords..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-2 border-gray-200 focus:border-teal-500 rounded-xl"
+              />
+            </div>
+
+            <div className="flex items-end">
+              <Button
+                data-testid="search-btn"
+                onClick={searchCandidates}
+                className="w-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-xl font-semibold"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </Button>
+            </div>
           </div>
+
+          {(filterMajor || filterSkill || searchTerm) && (
+            <div className="mt-4 flex items-center gap-2">
+              <span className="text-sm text-gray-600">Active Filters:</span>
+              {filterMajor && (
+                <span className="px-3 py-1 bg-teal-100 text-teal-700 rounded-full text-sm flex items-center gap-2">
+                  {filterMajor}
+                  <button onClick={() => setFilterMajor('')} className="hover:text-teal-900">×</button>
+                </span>
+              )}
+              {filterSkill && (
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm flex items-center gap-2">
+                  {filterSkill}
+                  <button onClick={() => setFilterSkill('')} className="hover:text-emerald-900">×</button>
+                </span>
+              )}
+              {searchTerm && (
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm flex items-center gap-2">
+                  {searchTerm}
+                  <button onClick={() => setSearchTerm('')} className="hover:text-blue-900">×</button>
+                </span>
+              )}
+            </div>
+          )}
         </Card>
 
         {/* Candidates Grid */}
