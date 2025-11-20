@@ -350,10 +350,12 @@ const AlumniDashboard = ({ user, onLogout }) => {
                 </div>
               </Card>
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          {/* Events Tab */}
-          <TabsContent value="events" className="space-y-6">
+        {/* Events Tab */}
+        {activeTab === 'events' && (
+          <div className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event) => (
                 <Card key={event.id} className="p-6 bg-white shadow-lg rounded-2xl hover:shadow-xl transition-all">
