@@ -209,10 +209,10 @@ const Landing = ({ onLogin, user }) => {
 
       {/* Auth Modal */}
       <Dialog open={showAuth} onOpenChange={setShowAuth}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-center gradient-text">
-              {authMode === 'login' ? 'Welcome Back' : 'Create Account'}
+              Welcome Back
             </DialogTitle>
           </DialogHeader>
           
