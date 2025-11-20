@@ -76,28 +76,48 @@ const AdminDashboard = ({ user, onLogout }) => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">Admin Dashboard</h1>
-            <p className="text-sm text-gray-600">Welcome, {user.full_name}</p>
-          </div>
-          <Button 
-            data-testid="logout-btn"
-            onClick={onLogout}
-            variant="outline"
-            className="border-2 border-red-200 text-red-600 hover:bg-red-50 rounded-xl"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </header>
+  const sidebarItems = [
+    {
+      id: 'overview',
+      label: 'Overview',
+      icon: BarChart3,
+      active: activeTab === 'overview',
+      onClick: () => setActiveTab('overview'),
+      testId: 'overview-tab'
+    },
+    {
+      id: 'predictions',
+      label: 'Predictions',
+      icon: TrendingUp,
+      active: activeTab === 'predictions',
+      onClick: () => setActiveTab('predictions'),
+      testId: 'predictions-tab'
+    },
+    {
+      id: 'engagement',
+      label: 'Engagement',
+      icon: Activity,
+      active: activeTab === 'engagement',
+      onClick: () => setActiveTab('engagement'),
+      testId: 'engagement-tab'
+    }
+  ];
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-teal-50 flex">
+      {/* Sidebar */}
+      <Sidebar
+        header={{
+          title: 'Admin Dashboard',
+          subtitle: user.full_name || 'Administrator'
+        }}
+        items={sidebarItems}
+        onLogout={onLogout}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 ml-64 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Key Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="p-6 bg-gradient-to-br from-teal-500 to-emerald-500 text-white border-0 shadow-lg">
