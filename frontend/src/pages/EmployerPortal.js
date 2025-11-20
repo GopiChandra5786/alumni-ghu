@@ -61,8 +61,8 @@ const EmployerPortal = ({ user, onLogout }) => {
       const params = {};
       if (filterMajor && filterMajor !== 'all') params.major = filterMajor;
       if (filterIndustry && filterIndustry !== 'all') params.industry = filterIndustry;
-      if (filterMinGpa) params.min_gpa = parseFloat(filterMinGpa);
-      if (filterExperience) params.experience = parseInt(filterExperience);
+      if (filterMinGpa && filterMinGpa !== 'all') params.min_gpa = parseFloat(filterMinGpa);
+      if (filterExperience && filterExperience !== 'all') params.experience = parseInt(filterExperience);
       if (searchKeyword) params.skills = searchKeyword;
       
       const response = await axios.get(`${API}/employers/search-candidates`, { params });
