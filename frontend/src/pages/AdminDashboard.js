@@ -29,8 +29,6 @@ const AdminDashboard = ({ user, onLogout }) => {
   
   // Graph view controls
   const [selectedGraph, setSelectedGraph] = useState('industry');
-  const [selectedMajor, setSelectedMajor] = useState('all');
-  const [selectedYear, setSelectedYear] = useState('all');
 
   useEffect(() => {
     fetchAnalytics();
