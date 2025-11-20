@@ -212,7 +212,7 @@ const EmployerPortal = ({ user, onLogout }) => {
                     <SelectValue placeholder="Any GPA" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any GPA</SelectItem>
+                    <SelectItem value="all">Any GPA</SelectItem>
                     <SelectItem value="3.5">3.5 and above</SelectItem>
                     <SelectItem value="3.0">3.0 and above</SelectItem>
                     <SelectItem value="2.5">2.5 and above</SelectItem>
