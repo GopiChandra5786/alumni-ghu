@@ -97,6 +97,7 @@ class AnalyticsResponse(BaseModel):
     active_alumni: int
     avg_salary: float
     top_industries: List[Dict[str, Any]]
+    top_majors: List[Dict[str, Any]]
     graduation_trends: List[Dict[str, Any]]
     engagement_stats: Dict[str, Any]
     mentorship_stats: Dict[str, Any]
