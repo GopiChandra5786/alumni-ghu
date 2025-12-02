@@ -1,7 +1,7 @@
 # GHU Alumni Connect Analytics Platform
 ## Transforming Alumni Engagement Through Data-Driven Insights
 
-**Project Duration:** September 2025 - November 2025  
+**Project Duration:** September 2025 - December 2025  
 **Institution:** Global Horizon University  
 **Project Type:** Master's Research Project (MRP)
 
