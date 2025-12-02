@@ -11,7 +11,6 @@
 4. [Problem-Solution Alignment](#problem-solution)
 5. [Complete User Journey Examples](#user-journeys)
 
----
 
 ## 🏗️ SOLUTION ARCHITECTURE MAPPING {#solution-architecture}
 
