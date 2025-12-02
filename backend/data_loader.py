@@ -18,7 +18,7 @@ async def load_alumni_data():
         # Read CSV properly using pandas
         df = pd.read_csv('/app/backend/alumni_data.csv')
         
-        # The first column contains all the header names
+        # The first column contains all the header namesS
         # We need to extract the actual headers from the first column name
         first_col_name = df.columns[0]
         headers = [h.strip() for h in first_col_name.split()][:71]  # Take actual header names
